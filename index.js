@@ -159,9 +159,6 @@ async function run() {
 
 
 
-
-
-
  // contests related API
     app.get('/contests', async(req,res)=>{
        const email = req.query.email
@@ -170,10 +167,10 @@ async function run() {
       res.send(result)
     })
 
-    // for all contest routing......PROBLEM TODO
+    // for all contest routing......
     app.get('/contests', async(req,res)=>{
       const id = req.params.id
-      const result = await contestsCollection.find(query).toArray();
+      const result = await contestsCollection.find().toArray();
       res.send(result)
     })
 
@@ -201,6 +198,24 @@ async function run() {
       const query = {_id: new ObjectId(id)}
       const result = await contestsCollection.deleteOne(query)
       res.send(result)
+    })
+
+
+
+    // For Search
+    app.get('/service', async (req, res)=>{
+      const filter = req.query
+      console.log(filter);
+
+      const query = {
+        title: {$regex: filter.search, $options: 'i'}
+      };
+
+      const cursor = contestsCollection.find(query)
+      const result = await cursor.toArray() 
+      res.send(result)
+
+
     })
 
 
@@ -233,17 +248,6 @@ async function run() {
     const payment = req.body;
     const paymentResult = await paymentCollection.insertOne(payment)
 
-    // carefully delete each item from the cart
-    // console.log('payment info', payment );
-    // const query = { 
-    //   _id: {
-    //     $in: payment.cartIds.map(id=> new ObjectId(id))
-    //   }}
-
-    // const deleteResult = await cartCollection.deleteMany(query)
-
-    // res.send({paymentResult,deleteResult})
-   
     res.send(paymentResult)
 
   })
