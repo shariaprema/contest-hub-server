@@ -80,6 +80,33 @@ async function run() {
   
       })
 
+      // for admin role set up
+      app.get('/users/admin/:email', async(req,res) =>{
+      const email = req.params.email
+    
+      const query = {email: email}
+      const user = await userCollection.findOne(query)
+      let admin = false
+      if(user){
+        admin = user?.role === 'admin';
+      }
+      res.send({admin})
+    })
+
+// for contestCreator role set up
+      app.get('/users/contestCreator/:email', async(req,res) =>{
+      const email = req.params.email
+     
+      const query = {email: email}
+      const user = await userCollection.findOne(query)
+      let contestCreator = false
+      if(user){
+        contestCreator = user?.role === 'contestCreator';
+      }
+      res.send({contestCreator})
+    })
+
+
 
 
    app.post("/users", async(req,res)=>{
@@ -96,7 +123,6 @@ async function run() {
     })
 //----------
 
-// for Role setup
 
    app.patch('/users/admin/:id',async (req, res) =>{
       const id = req.params.id
@@ -140,18 +166,18 @@ async function run() {
     app.get('/contests', async(req,res)=>{
        const email = req.query.email
       const query = {email: email}
-      const result = await contestsCollection.find().toArray();
+      const result = await contestsCollection.find(query).toArray();
       res.send(result)
     })
 
-
-
-    // for all contest routing......PROBLEM
+    // for all contest routing......PROBLEM TODO
     app.get('/contests', async(req,res)=>{
       const id = req.params.id
       const result = await contestsCollection.find(query).toArray();
       res.send(result)
     })
+
+
 
  
     app.post("/contests", async(req,res)=>{
@@ -160,7 +186,6 @@ async function run() {
       res.send(result)
     })
       
-
 
   app.get("/contests/:id", async (req, res) => {
       const id = req.params.id
@@ -202,6 +227,8 @@ async function run() {
     })
 
 
+
+
     app.post('/payments', async (req,res)=>{
     const payment = req.body;
     const paymentResult = await paymentCollection.insertOne(payment)
@@ -222,14 +249,13 @@ async function run() {
   })
 
 
-  // app.get('/payments/:email', async (req,res)=>{
-  //   const query= {email: req.params.email};
-  //   if(req.params.email !== req.decoded.email){
-  //     return res.status(403).send({message: 'forbidden access'})
-  //   }
-  //   const result = await paymentCollection.find(query).toArray();
-  //   res.send(result)
-  // })
+  app.get('/payments/:email', async (req,res)=>{
+    const query= {email: req.params.email};
+    
+    const result = await paymentCollection.find(query).toArray();
+    res.send(result)
+  })
+
 
 
 
@@ -241,9 +267,6 @@ async function run() {
       const result = await cartCollection.find(query).toArray()
       res.send(result)
     })
-
-
-
 
 
 
@@ -283,8 +306,8 @@ async function run() {
 
     // Send a ping to confirm a successful connection
 
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
